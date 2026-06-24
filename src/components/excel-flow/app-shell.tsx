@@ -25,7 +25,7 @@ function titleFor(pathname: string): string {
 function UploadChrome({ email, children }: { email: string | null; children: React.ReactNode }) {
   const initial = (email?.trim()[0] ?? '?').toUpperCase()
   return (
-    <div className="relative z-10 flex h-[100dvh] flex-col overflow-hidden">
+    <div className="relative z-10 flex min-h-[100dvh] flex-col overflow-x-hidden">
       <header className="flex shrink-0 items-center justify-between gap-3 px-5 py-4 sm:px-8">
         <Link href="/excel-flow" className="flex items-center gap-2.5">
           <Image
@@ -51,23 +51,27 @@ function UploadChrome({ email, children }: { email: string | null; children: Rea
         </Link>
       </header>
 
-      {/* una sola pantalla: sin scroll. El contenido se centra y entra completo;
-          pb deja aire para la cuenta fija de la esquina inferior izquierda. */}
-      <main className="flex min-h-0 flex-1 items-center overflow-hidden px-1 pb-12">
+      {/* Mobile: flujo natural, el contenido fluye desde arriba y la página hace
+          scroll del documento (sin centrado vertical que recorte el hero).
+          Desktop (lg): una sola pantalla, contenido centrado vertical y sin scroll. */}
+      <main className="flex min-h-0 flex-1 flex-col px-1 pb-8 lg:justify-center lg:overflow-hidden lg:pb-0">
         {children}
       </main>
 
-      <div className="fixed bottom-4 left-4 z-20 flex items-center gap-2">
+      {/* Cuenta: pie discreto en el flujo en móvil (no tapa el contenido); en
+          desktop vuelve a flotar fija abajo-izquierda como antes. El pb incluye
+          el safe-area para que no quede oculta tras la barra del navegador. */}
+      <footer className="z-20 flex shrink-0 items-center gap-2 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-3 sm:px-8 lg:fixed lg:bottom-4 lg:left-4 lg:p-0">
         <div className="flex items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 backdrop-blur-xl">
           <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-xs font-semibold text-blue-300">
             {initial}
           </div>
-          <span className="hidden max-w-[160px] truncate text-xs text-slate-300 sm:inline">
+          <span className="max-w-[160px] truncate text-xs text-slate-300">
             {email ?? 'Sesión admin'}
           </span>
         </div>
         <LogoutButton compact />
-      </div>
+      </footer>
     </div>
   )
 }

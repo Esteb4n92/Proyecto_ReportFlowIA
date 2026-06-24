@@ -109,6 +109,21 @@ function formatBytes(bytes: number): string {
   return Math.max(1, Math.round(bytes / 1e3)) + ' KB'
 }
 
+// Detecta lg+ (≥1024px). Empieza en false para coincidir con el SSR y se
+// actualiza en cliente; sirve para desactivar el tilt 3D y el efecto magnético
+// en pantallas chicas (donde solo estorban y no hay cursor).
+function useIsDesktop(): boolean {
+  const [isDesktop, setIsDesktop] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    setIsDesktop(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return isDesktop
+}
+
 // Efecto "magnético": el contenido se desplaza suavemente hacia el cursor
 // mientras el mouse está encima, y vuelve a su lugar con un spring al salir.
 function Magnetic({
@@ -184,7 +199,7 @@ function DropZone({
         if (f) handleFile(f)
       }}
       className={
-        'group relative w-full cursor-pointer overflow-hidden rounded-xl border border-dashed p-7 text-center transition-all duration-300 ' +
+        'group relative w-full cursor-pointer overflow-hidden rounded-xl border border-dashed p-5 text-center transition-all duration-300 sm:p-7 ' +
         (dragging
           ? 'border-blue-400/70 bg-blue-500/[.06] scale-[1.01]'
           : file
@@ -323,12 +338,13 @@ function AnalyzeButton({
 
 export default function ExcelFlowPage() {
   const router = useRouter()
+  const isDesktop = useIsDesktop()
   const [file, setFile] = useState<File | null>(null)
   const [prompt, setPrompt] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Tilt 3D sutil del panel de carga según la posición del mouse
+  // Tilt 3D sutil del panel de carga según la posición del mouse (solo desktop)
   const tiltX = useMotionValue(0)
   const tiltY = useMotionValue(0)
   const rotateX = useSpring(useTransform(tiltY, [-0.5, 0.5], [5, -5]), { stiffness: 150, damping: 16 })
@@ -357,10 +373,10 @@ export default function ExcelFlowPage() {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl items-center gap-8 px-5 py-4 sm:px-8 lg:grid-cols-[1fr_minmax(0,29rem)] lg:gap-16">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 py-4 sm:px-8 sm:gap-8 lg:grid lg:grid-cols-[1fr_minmax(0,29rem)] lg:items-center lg:gap-16 lg:py-0">
       {/* columna izquierda: hero + pasos */}
       <section>
-        <h1 className="max-w-xl text-4xl font-semibold leading-[1.08] tracking-tight text-slate-50 sm:text-5xl">
+        <h1 className="max-w-xl text-3xl font-semibold leading-[1.08] tracking-tight text-slate-50 sm:text-5xl">
           <Words text="Analiza tus datos" delay={0.08} />
           <br />
           <Reveal delay={0.34}>
@@ -369,7 +385,7 @@ export default function ExcelFlowPage() {
             </span>
           </Reveal>
         </h1>
-        <motion.p {...fadeUp(320)} className="mt-4 max-w-md text-[15px] leading-relaxed text-slate-400">
+        <motion.p {...fadeUp(320)} className="mt-3 max-w-md text-sm leading-relaxed text-slate-400 sm:mt-4 sm:text-[15px]">
           Sube tus datos, describe qué quieres analizar y la IA genera el informe con gráficos e
           insights.
         </motion.p>
@@ -400,16 +416,24 @@ export default function ExcelFlowPage() {
       {/* columna derecha: panel de carga (con tilt 3D según el mouse) */}
       <motion.section
         {...fadeUp(200)}
-        onMouseMove={(e) => {
-          const r = e.currentTarget.getBoundingClientRect()
-          tiltX.set((e.clientX - r.left) / r.width - 0.5)
-          tiltY.set((e.clientY - r.top) / r.height - 0.5)
-        }}
-        onMouseLeave={() => {
-          tiltX.set(0)
-          tiltY.set(0)
-        }}
-        style={{ rotateX, rotateY, transformPerspective: 1000 }}
+        onMouseMove={
+          isDesktop
+            ? (e) => {
+                const r = e.currentTarget.getBoundingClientRect()
+                tiltX.set((e.clientX - r.left) / r.width - 0.5)
+                tiltY.set((e.clientY - r.top) / r.height - 0.5)
+              }
+            : undefined
+        }
+        onMouseLeave={
+          isDesktop
+            ? () => {
+                tiltX.set(0)
+                tiltY.set(0)
+              }
+            : undefined
+        }
+        style={isDesktop ? { rotateX, rotateY, transformPerspective: 1000 } : undefined}
         className="relative rounded-xl border border-slate-800/80 bg-slate-900/40 p-5 shadow-[0_24px_80px_rgba(0,0,0,.5)] backdrop-blur-xl sm:p-6"
       >
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
@@ -460,7 +484,7 @@ export default function ExcelFlowPage() {
         </AnimatePresence>
 
         <div className="mt-6">
-          <Magnetic enabled={!!file && !analyzing}>
+          <Magnetic enabled={isDesktop && !!file && !analyzing}>
             <AnalyzeButton ready={!!file} analyzing={analyzing} onStart={handleUpload} />
           </Magnetic>
         </div>
