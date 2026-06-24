@@ -3,6 +3,7 @@ import crypto from 'node:crypto'
 import { supabaseAdmin } from '@/lib/excel-flow/supabase-admin'
 import { createSupabaseServerClient } from '@/lib/excel-flow/supabase-server'
 import { sendApprovalEmail } from '@/lib/excel-flow/email'
+import { resolveBaseUrl } from '@/lib/excel-flow/request-url'
 import type { Report } from '@/lib/excel-flow/types'
 
 // Estados en los que el reporte ya tiene análisis y se puede enviar a aprobación.
@@ -91,7 +92,10 @@ export async function POST(req: NextRequest) {
       .eq('id', reportId)
 
     // 3) Enviar los correos. Si alguno falla, lo reportamos pero no abortamos:
-    // la fila de approval ya existe y el envío se puede reintentar.
+    // la fila de approval ya existe y el envío se puede reintentar. El baseUrl
+    // sale del request real (no de build-time), así el link usa el dominio
+    // correcto en local y en producción.
+    const baseUrl = resolveBaseUrl(req)
     const results = await Promise.all(
       created.map(async (row) => ({
         email: row.approver_email,
@@ -99,6 +103,7 @@ export async function POST(req: NextRequest) {
           to: row.approver_email,
           reportName: report.filename,
           token: row.token,
+          baseUrl,
           message,
         })),
       }))

@@ -2,8 +2,12 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 const FROM = process.env.RESEND_FROM_EMAIL || 'ReportFlow IA <onboarding@resend.dev>'
+
+// Quita una posible barra final para concatenar el path de forma segura.
+function trimBase(baseUrl: string): string {
+  return baseUrl.replace(/\/+$/, '')
+}
 
 interface ApprovalEmailParams {
   to: string
@@ -11,6 +15,8 @@ interface ApprovalEmailParams {
   reportName: string
   /** token único de esta aprobación (define el link público) */
   token: string
+  /** URL base pública (resuelta en tiempo de request) para armar el link */
+  baseUrl: string
   /** mensaje opcional que escribe quien envía */
   message?: string | null
 }
@@ -33,9 +39,10 @@ export async function sendApprovalEmail({
   to,
   reportName,
   token,
+  baseUrl,
   message,
 }: ApprovalEmailParams): Promise<{ ok: boolean; error?: string }> {
-  const link = `${BASE_URL}/approve/${token}`
+  const link = `${trimBase(baseUrl)}/approve/${token}`
   const safeName = escapeHtml(reportName)
   const safeMessage = message?.trim() ? escapeHtml(message.trim()) : null
 
@@ -119,6 +126,8 @@ interface ResultEmailParams {
   comment?: string | null
   /** id del reporte, para enlazar al dashboard del admin */
   reportId: string
+  /** URL base pública (resuelta en tiempo de request) para armar el link */
+  baseUrl: string
 }
 
 /**
@@ -132,9 +141,10 @@ export async function sendApprovalResultEmail({
   result,
   comment,
   reportId,
+  baseUrl,
 }: ResultEmailParams): Promise<{ ok: boolean; error?: string }> {
   const approved = result === 'approved'
-  const link = `${BASE_URL}/excel-flow/report/${reportId}`
+  const link = `${trimBase(baseUrl)}/excel-flow/report/${reportId}`
   const safeName = escapeHtml(reportName)
   const safeApprover = escapeHtml(approverEmail)
   const safeComment = comment?.trim() ? escapeHtml(comment.trim()) : null

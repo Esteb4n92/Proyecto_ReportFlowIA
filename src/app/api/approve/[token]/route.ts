@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/excel-flow/supabase-admin'
 import { sendApprovalResultEmail } from '@/lib/excel-flow/email'
+import { resolveBaseUrl } from '@/lib/excel-flow/request-url'
 import type { Approval, Report, ReportStatus } from '@/lib/excel-flow/types'
 
 // Esta ruta vive FUERA de /api/excel-flow a propósito: el aprobador es externo
@@ -84,6 +85,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         result: newStatus,
         comment: typeof comment === 'string' ? comment : null,
         reportId: approval.report_id,
+        baseUrl: resolveBaseUrl(req),
       })
     }
 
