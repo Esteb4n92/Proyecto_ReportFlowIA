@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* neutros navy (alineados al fondo del logo #030a28) */
+  --color-slate-950: #000000;
+  --color-slate-900: #0a1233;
+  --color-slate-800: #1a2450;
+  --color-slate-700: #2b3766;
+  --color-slate-600: #475590;
+  --color-slate-500: #6674a8;
+  --color-slate-400: #8e9cc8;
+  --color-slate-300: #bcc6e4;
+  --color-slate-200: #d9dff2;
+  --color-slate-100: #ecf0fa;
+  --color-slate-50: #f6f8fd;
+}
+
+html {
+  background: #000000;
+}
+
+body {
+  background: #000000;
+  color: #ecf0fa;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------- fondo: grid de puntos + blobs a la deriva ---------- */
+.fx-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2400' height='1400'%3E%3Cdefs%3E%3Cpattern id='d' width='28' height='28' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='1.5' cy='1.5' r='1.2' fill='rgb(102 116 168 / 0.22)'/%3E%3C/pattern%3E%3CradialGradient id='f' cx='50%' cy='0%' r='90%'%3E%3Cstop offset='22%' stop-color='black' stop-opacity='0'/%3E%3Cstop offset='72%' stop-color='black' stop-opacity='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='100%' height='100%' fill='url(%23d)'/%3E%3Crect width='100%' height='100%' fill='url(%23f)'/%3E%3C/svg%3E");
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+.fx-blob {
+  position: absolute;
+  border-radius: 9999px;
+}
+.fx-blob-a {
+  width: 700px;
+  height: 700px;
+  top: -290px;
+  left: -210px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.07) 45%, transparent 70%);
+}
+.fx-blob-b {
+  width: 800px;
+  height: 800px;
+  top: 0%;
+  right: -340px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.13) 0%, rgba(139, 92, 246, 0.05) 45%, transparent 70%);
+}
+.fx-blob-c {
+  width: 650px;
+  height: 650px;
+  bottom: -330px;
+  left: 24%;
+  background: radial-gradient(circle, rgba(43, 55, 102, 0.38) 0%, rgba(43, 55, 102, 0.14) 45%, transparent 70%);
+}
+.fx-drift-a {
+  animation: driftA 26s ease-in-out infinite alternate;
+}
+.fx-drift-b {
+  animation: driftB 34s ease-in-out infinite alternate;
+}
+.fx-drift-c {
+  animation: driftC 30s ease-in-out infinite alternate;
+}
+@keyframes driftA {
+  to {
+    transform: translate(110px, 70px) scale(1.12);
+  }
+}
+@keyframes driftB {
+  to {
+    transform: translate(-130px, 120px) scale(0.92);
+  }
+}
+@keyframes driftC {
+  to {
+    transform: translate(90px, -80px) scale(1.08);
+  }
+}
+
+/* ---------- flotación suave del ícono del dropzone ---------- */
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+.fx-float {
+  animation: floatY 3.4s ease-in-out infinite;
+}
+
+/* ---------- shimmer del estado "analizando" ---------- */
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.fx-shimmer {
+  background: linear-gradient(100deg, transparent 30%, rgba(96, 165, 250, 0.14) 50%, transparent 70%);
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-drift-a,
+  .fx-drift-b,
+  .fx-drift-c,
+  .fx-float,
+  .fx-shimmer {
+    animation: none !important;
+  }
+}
