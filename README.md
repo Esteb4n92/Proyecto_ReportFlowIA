@@ -10,7 +10,7 @@
 
 ---
 
-## ✨ Qué hace
+##  Qué hace
 
 1. **Sube tus datos** — `.xlsx`, `.xls`, `.csv` o `.json`, con instrucciones opcionales para la IA.
 2. **Análisis automático** — Claude detecta patrones, genera hallazgos clave, sugiere los gráficos adecuados y redacta un informe.
@@ -19,7 +19,7 @@
 5. **Aprobación por email** — envías el reporte a un aprobador; recibe un link con token único para aprobar/rechazar (sin login).
 6. **Historial** — seguimiento de todos los reportes y su estado en tiempo real.
 
-## 🧱 Stack
+##  Stack
 
 | Capa | Tecnología |
 |---|---|
@@ -36,5 +36,6 @@
 ---
 
 <div align="center">
-<sub>Construido por <b>AIGILE</b></sub>
+<sub>Construido por <b>AIGILE -</b></sub>
+<sub><b>Esteban Villalobos Meriño</b></sub>
 </div>
